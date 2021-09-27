@@ -7,8 +7,8 @@ import struct
 import chaosMap
 import json
 
-TYPE_ = 1
-KEY = "abcdefghijklm"#20#(0.1,0.1)
+TYPE_ = 2 #  0 - ArnoldCat , 1 - HenonMap , 2 - LogisticMap  
+KEY = "abcdefghijklm"#20#(0.1,0.1) # key to encrypt the image
 
 HOST = "127.0.0.1" # server ip
 PORT = 5001 # Reserve a port for server.
@@ -20,16 +20,17 @@ print("[+] Connected to server")
 img = cv2.imread('HorizonZero.png') # read image from file
 img = chaosMap.chaosEncryption(img,KEY,TYPE_) # encrypt image
 
-data = pickle.dumps(img, 0) # convert image to byte
-size = len(data)
-print("[!] Size of the image : ",size)
-sock.sendall(struct.pack(">L", size) + data) # send image bytes to server
-
 data = {
     'type' : TYPE_,
     'key' : KEY,
 }
 data = json.dumps(data)
-sock.sendall(data.encode()) # send encryption type and key to server
+print("[!] Sending data to server : ",data)
+sock.send(data.encode()) # send encryption type and key to server
+
+data = pickle.dumps(img, 0) # convert image to byte
+size = len(data)
+print("[!] Size of the image : ",size)
+sock.sendall(struct.pack(">L", size) + data) # send image bytes to server
 
 sock.close()

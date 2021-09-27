@@ -1,12 +1,19 @@
 import cv2
 from PIL import Image
 import numpy as np
-import os   
-import random
 from math import log
 
 
-def ArnoldCatTransform(img, num):
+def ArnoldCatTransform(img):
+    """
+    Function to perform the Arnaud-Cat transformation
+
+    Args:
+        img: The image to be encrypted
+
+    Returns:
+        The encrypted image
+    """
     rows, cols, ch = img.shape
     n = rows
     img_arnold = np.zeros([rows, cols, ch])
@@ -16,11 +23,32 @@ def ArnoldCatTransform(img, num):
     return img_arnold  
 
 def ArnoldCatEncryption(img, key):
+    """
+    Encrypts the image using the Arnaud-Cat algorithm
+
+    Args:
+        img: The image to be encrypted
+        key: The key to be used for encryption
+    
+    Returns:
+        The encrypted image
+
+    """
     for i in range (0,key):
-        img = ArnoldCatTransform(img, i)
+        img = ArnoldCatTransform(img)
     return img
 
 def ArnoldCatDecryption(img, key):
+    """
+    Decrypts the image using the Arnaud-Cat algorithm
+
+    Args:
+        img: The image to be decrypted
+        key: The key to be used for decryption
+    
+    Returns:
+        The decrypted image
+    """
     rows, cols, ch = img.shape
     dimension = rows
     decrypt_it = dimension
@@ -37,6 +65,15 @@ def ArnoldCatDecryption(img, key):
     return img
 
 def getImageMatrix(imageName):
+    """
+    Function to open image and convert into matrix
+
+    Args:
+        imageName: The name of the image to be converted
+    
+    Returns:
+        The image matrix
+    """
     im = Image.open(imageName) 
     pix = im.load()
     color = 1
@@ -53,6 +90,15 @@ def getImageMatrix(imageName):
     return image_matrix,image_size[0],color
 
 def getImageMatrixCV(img):
+    """
+    Convert image into matrix
+
+    Args:
+        img: The image to be converted
+    
+    Returns:
+        The image matrix
+    """
     img = cv2.rotate(img[::-1], cv2.ROTATE_90_CLOCKWISE)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) 
     pix = Image.fromarray(img)
@@ -70,12 +116,31 @@ def getImageMatrixCV(img):
     return image_matrix,image_size[0],color
 
 def dec(bitSequence):
+    """
+    Function to convert bitSequence into decimal
+
+    Args:
+        bitSequence: The bitSequence to be converted
+    
+    Returns:
+        The decimal value of the bitSequence
+    """
     decimal = 0
     for bit in bitSequence:
         decimal = decimal * 2 + int(bit)
     return decimal
 
 def genHenonMap(dimension, key):
+    """
+    Function to generate the Henon map
+
+    Args:
+        dimension: The dimension of the map
+        key: The key to be used for encryption
+
+    Returns:
+        The Henon map
+    """
     x = key[0]
     y = key[1]
     sequenceSize = dimension * dimension * 8 #Total Number of bitSequence produced
@@ -117,6 +182,17 @@ def genHenonMap(dimension, key):
     return TImageMatrix
 
 def HenonEncryption(img,key,flag = 0):
+    """
+    Encrypts the image using the Henon algorithm
+
+    Args:
+        img: The image to be encrypted
+        key: The key to be used for encryption
+        flag: The flag to be used for encryption(1 if image is in CV format,0 if image name is given)
+
+    Returns:
+        The encrypted image
+    """
     if flag == 0:
         imageMatrix, dimension, color = getImageMatrix(img)
     else:
@@ -155,6 +231,17 @@ def HenonEncryption(img,key,flag = 0):
     return opencv_image 
 
 def HenonDecryption(img, key,flag=0):
+    """
+    Decrypt the image using the Henon algorithm
+
+    Args:
+        img: The image to be decrypted
+        key: The key to be used for decryption
+        flag: The flag to be used for decryption(1 if image is in CV format,0 if image name is given)
+    
+    Returns:
+        The decrypted image
+    """
     if flag == 0:
         imageMatrix, dimension, color = getImageMatrix(img)
     else:
@@ -193,6 +280,17 @@ def HenonDecryption(img, key,flag=0):
     return opencv_image  
 
 def LogisticEncryption(img, key,flag=0):
+    """
+    Encrypt the image using the Logistic algorithm
+
+    Args:
+        img: The image to be encrypted
+        key: The key to be used for encryption
+        flag: The flag to be used for encryption(1 if image is in CV format,0 if image name is given)
+    
+    Returns:
+        The encrypted image
+    """
     N = 256
     key_list = [ord(x) for x in key]
     G = [key_list[0:4] ,key_list[4:8], key_list[8:12]]
@@ -275,6 +373,17 @@ def LogisticEncryption(img, key,flag=0):
 
 
 def LogisticDecryption(img, key, flag=0):
+    """
+    Decrypt the image using the Logistic algorithm
+
+    Args:
+        img: The image to be decrypted
+        key: The key to be used for decryption
+        flag: The flag to be used for decryption(1 if image is in CV format,0 if image name is given)
+    
+    Returns:
+        The decrypted image
+    """
     N = 256
     key_list = [ord(x) for x in key]
 
@@ -367,6 +476,17 @@ def LogisticDecryption(img, key, flag=0):
 
 
 def chaosEncryption(img,key,algorithm=0):
+    """
+    Encrypt the image using the chaos encryption algorithms with the given key
+
+    Args:
+        img: The image to be encrypted
+        key: The key to be used for encryption
+        algorithm: The algorithm to be used for encryption. 0 for ArnoldCat , 1 for HenonMap, 2 for LogisticMap
+    
+    Returns:
+        The encrypted image
+    """
     if algorithm == 0:
         img = ArnoldCatEncryption(img, key)
     elif algorithm == 1:
@@ -377,6 +497,17 @@ def chaosEncryption(img,key,algorithm=0):
     return img
 
 def chaosDecryption(img,key,algorithm=0):
+    """
+    Decrypt the image using the chaos encryption algorithms with the given key
+
+    Args:
+        img: The image to be decrypted
+        key: The key to be used for decryption
+        algorithm: The algorithm to be used for decryption. 0 for ArnoldCat , 1 for HenonMap, 2 for LogisticMap
+    
+    Returns:
+        The decrypted image
+    """
     if algorithm == 0:
         img = ArnoldCatDecryption(img, int(key))
     elif algorithm == 1:
@@ -386,27 +517,3 @@ def chaosDecryption(img,key,algorithm=0):
     
     return img
     
-"""
-fileName = "HorizonZero.png"
-img = cv2.imread(fileName)
-print(img.shape)
-if False:
-    img = ArnoldCatEncryption(img, 20)
-    cv2.imwrite("HorizonZero_encrypted.png", img)
-    ArnoldCatDecryptionIm = ArnoldCatDecryption(img, 20)
-    cv2.imwrite("HorizonZero_decrypted.png", ArnoldCatDecryptionIm)
-
-if False:
-    key = (0.1,0.1)
-    #encImg = HenonEncryption("HorizonZero.png", key)
-    encImg = HenonEncryption(img, key,1)
-    cv2.imwrite("HenonEnc.png", encImg)
-    #img = HenonDecryption("HenonEnc.png", key)
-    img = HenonDecryption(encImg, key,1)
-    cv2.imwrite("HenonDec.png", img)
-
-if False:
-    encImg = LogisticEncryption(img, "abcdefghijklm",1)
-    cv2.imwrite("LogisticEnc.png", encImg)
-    img = LogisticDecryption(encImg, "abcdefghijklm",1)
-    cv2.imwrite("LogisticDec.png", img)"""

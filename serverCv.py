@@ -1,5 +1,4 @@
 import socket
-import sys
 import cv2
 import pickle
 import numpy as np
@@ -24,6 +23,13 @@ print(f"[+] Got a connection from {addr[0]}:{addr[1]}")
 data = b"" # Initialize data
 payload_size = struct.calcsize(">L") # Payload size
 
+dataRecv = conn.recv(1024).decode() # recieve encryption details
+print("[+] Received data: ", dataRecv)
+dataRecv = json.loads(dataRecv) # convert to json
+key = dataRecv['key'] # get key
+type_ = dataRecv['type'] # get type
+print("[+] Recieved decryption details from client")
+
 print("[!] payload_size: {}".format(payload_size))
 while len(data) < payload_size: # Get data of payload_size from client
     print("[/] Downloading : {}".format(len(data)))
@@ -33,7 +39,7 @@ print("[!] Done Recv: {}".format(len(data)))
 packed_img_size = data[:payload_size] # Get the image size
 data = data[payload_size:] # get the remaining data
 img_size = struct.unpack(">L", packed_img_size)[0]
-print("[!] msg_size: {}".format(img_size))
+print("[!] img_size: {}".format(img_size))
 
 
 while len(data) < img_size: # Get data of image size from client
@@ -45,13 +51,6 @@ img_data = data[:img_size]
 data = data[img_size:]
 img = pickle.loads(img_data, fix_imports=True, encoding="bytes") # Convert image bytes to image
 #img = cv2.imdecode(img, cv2.IMREAD_COLOR)
-
-
-dataRecv = soc.recv(1024).decode() # recieve encryption details
-dataRecv = json.loads(dataRecv) # convert to json
-key = dataRecv['key'] # get key
-type_ = dataRecv['type'] # get type
-print("[+] Recieved decryption details from client")
 
 print("[*] Started Decryption ")
 img = chaosMap.chaosDecryption(img,key,type_) # decrypt image
