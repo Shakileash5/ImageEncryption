@@ -3,9 +3,10 @@ import sys
 import cv2
 import pickle
 import numpy as np
-import struct ## new
+import struct 
+import chaosMap
 
-soc = socket.socket() # Create a socket object
+soc = socket.socket(socket.AF_INET,socket.SOCK_STREAM) # Create a socket object
 HOST = "127.0.0.1" # server ip
 PORT = 5001 # Reserve a port for server.
 
@@ -35,10 +36,12 @@ print("[!] msg_size: {}".format(msg_size))
 while len(data) < msg_size:
     data += conn.recv(4096)
 
-frame_data = data[:msg_size]
+img_data = data[:msg_size]
 data = data[msg_size:]
-frame=pickle.loads(frame_data, fix_imports=True, encoding="bytes")
-frame = cv2.imdecode(frame, cv2.IMREAD_COLOR)
-cv2.imwrite('download.jpg',frame)
+img = pickle.loads(img_data, fix_imports=True, encoding="bytes")
+#img = cv2.imdecode(img, cv2.IMREAD_COLOR)
+key = 20#(0.1,0.1)
+img = chaosMap.chaosDecryption(img,key,0)
+cv2.imwrite('download.png',img)
 
 soc.close()

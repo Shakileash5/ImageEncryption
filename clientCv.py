@@ -3,20 +3,24 @@ import numpy as np
 import socket
 import sys
 import pickle
-import struct ### new code
+import struct 
+import chaosMap
 
-
-sock=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-sock.connect(('localhost',8089))
+HOST = "127.0.0.1" # server ip
+PORT = 5001 # Reserve a port for server.
+sock=socket.socket(socket.AF_INET,socket.SOCK_STREAM) # Create a socket object
+sock.connect((HOST,PORT))
 
 img_counter = 0
 
 encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
 
-frame=cv2.imread('test.jpg')
-result, frame = cv2.imencode('.jpg', frame, encode_param)
-data = pickle.dumps(frame, 0)
+img = cv2.imread('HorizonZero.png')
+key = 20#(0.1,0.1)
+img = chaosMap.chaosEncryption(img,key,0)
+#result, img = cv2.imencode('.jpg', img, encode_param)
+data = pickle.dumps(img, 0)
 size = len(data)
-print("{}: {}".format(img_counter, size))
+print("Size of the image : ",size)
 sock.sendall(struct.pack(">L", size) + data)
 sock.close()
