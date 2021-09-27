@@ -378,7 +378,7 @@ def chaosEncryption(img,key,algorithm=0):
 
 def chaosDecryption(img,key,algorithm=0):
     if algorithm == 0:
-        img = ArnoldCatDecryption(img, key)
+        img = ArnoldCatDecryption(img, int(key))
     elif algorithm == 1:
         img = HenonDecryption(img, key, 1)
     else:
